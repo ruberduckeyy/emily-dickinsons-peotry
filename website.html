@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biography & Themes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Averia+Libre:wght@400;700&family=Familjen+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-bg: #0a0a1a;
+            --primary-text: #ffd700;
+            --secondary-text: #c0c0c0;
+            --card-bg: rgba(40, 40, 40, 0.95);
+            --card-shadow: 0 0 20px rgba(255, 223, 0, 0.2);
+            --border-radius: 20px;
+            --padding: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Familjen Grotesk', sans-serif;
+            background: var(--primary-bg);
+            color: var(--primary-text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Reusable Classes */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: var(--padding);
+            margin-bottom: var(--padding);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 223, 0, 0.5);
+        }
+
+        .text-glow-small {
+            text-shadow: 0 0 8px rgba(255, 223, 0, 0.3);
+        }
+
+        .button {
+            background: rgba(255, 223, 0, 0.1);
+            border: 1px solid rgba(255, 223, 0, 0.3);
+            color: var(--primary-text);
+            padding: 10px 20px;
+            font-family: 'Familjen Grotesk', sans-serif;
+            font-size: 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background: rgba(255, 223, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Page Title */
+        h1 {
+            font-family: 'Averia Libre', cursive;
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: var(--padding);
+            color: #ffffff;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        /* Sections */
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--secondary-text);
+        }
+
+        .section p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Starry Background */
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            z-index: -1;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Flashlight Effect */
+        .flashlight {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(
+                circle closest-side,
+                rgba(255, 255, 255, 0.8),
+                rgba(255, 255, 255, 0) 80%,
+                transparent
+            );
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 1002;
+            mix-blend-mode: lighten;
+            transition: var(--transition);
+        }
+
+        /* Creative Layout Enhancements */
+        .section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 223, 0, 0.1), transparent);
+            transition: var(--transition);
+        }
+
+        .section:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="flashlight" id="flashlight"></div>
+
+    <h1 id="page-title" class="text-glow">Biography & Themes</h1>
+
+    <div class="section card" id="biography">
+        <h2 class="text-glow-small">Biography</h2>
+        <p>Emily Dickinson (1830–1886) was an American poet known for her reclusive lifestyle and unique poetic style. She wrote nearly 1,800 poems, most of which were published posthumously.</p>
+    </div>
+
+    <div class="section card" id="literary-influence">
+        <h2 class="text-glow-small">Literary Influence</h2>
+        <p>Dickinson's work is characterized by its unconventional punctuation, slant rhyme, and profound themes. She influenced modernist poetry and is considered one of America's greatest poets.</p>
+    </div>
+
+    <div class="section card" id="key-themes">
+        <h2 class="text-glow-small">Key Themes</h2>
+        <p>Her poetry explores themes of death, immortality, nature, love, and the self.</p>
+    </div>
+
+    <div class="section card" id="about-website">
+        <h2 class="text-glow-small">About This Website</h2>
+        <p>Emily Dickinson's voice was often silenced during her lifetime, as societal norms and publishing constraints prevented her from sharing her work freely under her own name. This website is a tribute to her brilliance, offering a space where her poetry can be celebrated and appreciated in its entirety. Here, we honor her legacy by making her words accessible to all, ensuring that her profound insights and unique voice continue to inspire generations.</p>
+    </div>
+
+    <script>
+        // Create Starry Background
+        function createStars() {
+            const starCount = 100;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                document.body.appendChild(star);
+            }
+        }
+
+        // Flashlight Effect
+        const flashlight = document.getElementById('flashlight');
+        document.addEventListener('mousemove', (e) => {
+            flashlight.style.left = `${e.clientX}px`;
+            flashlight.style.top = `${e.clientY + window.scrollY}px`;
+        });
+
+        // Reveal Animation on Scroll
+        function revealOnScroll() {
+            const sections = document.querySelectorAll('.section');
+            const title = document.getElementById('page-title');
+            const scrollY = window.scrollY;
+            const windowHeight = window.innerHeight;
+
+            // Reveal title immediately on page load
+            title.classList.add('reveal');
+
+            // Reveal sections
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                if (sectionTop < windowHeight * 0.75) {
+                    section.classList.add('reveal');
+                }
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll(); // Trigger on initial load
+        });
+    </script>
+</body>
+</html>
