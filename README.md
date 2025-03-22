@@ -8,4 +8,4 @@ description: An interactive website featuring Emily Dickinson's poems. Click any
 - **Flashlight Cursor**: A flashlight effect on the cursor...
 
 ## Live Demo
-[View the live demo here](https://ruberduckeyy.github.io/Emily-dickinsons-poetry)
+[View the live demo here][(https://<ruberduckeyy>.github.io/<emily-dickinsons-peotry>/)](https://ruberduckeyy.github.io/emily-dickinsons-peotry/)
