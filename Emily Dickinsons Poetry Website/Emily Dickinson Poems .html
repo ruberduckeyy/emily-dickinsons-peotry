@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emily Dickinson's Poetry Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;700&family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Familjen Grotesk', sans-serif;
+            min-height: 200vh;
+            background: #0a0a1a;
+            color: #ffd700;
+            overflow-x: hidden;
+        }
+
+        /* Reusable Classes */
+        .card {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 223, 0, 0.2);
+            padding: 20px;
+            max-width: 500px;
+            margin: 20px;
+        }
+
+        .button {
+            background: rgba(255, 223, 0, 0.1);
+            border: 1px solid rgba(255, 223, 0, 0.3);
+            color: #ffd700;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Familjen Grotesk', sans-serif;
+            font-size: 1rem;
+            border-radius: 20px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .button:hover {
+            background: rgba(255, 223, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .revealed {
+            opacity: 1;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            z-index: 1000;
+            gap: 10px;
+        }
+
+        .navbar .button {
+            background: none;
+            border: none;
+            color: #ffffff;
+        }
+
+        #add-poem-button {
+            border: 2px solid #ffffff;
+            background: rgba(255, 223, 0, 0.1);
+        }
+
+        #add-poem-button:hover {
+            background: rgba(255, 223, 0, 0.2);
+        }
+
+        #add-poem-button.extended {
+            width: 300px;
+            padding: 10px 30px;
+        }
+
+        /* Search Container */
+        .search-container {
+            margin-left: auto;
+        }
+
+        .search-container input {
+            background: rgba(255, 223, 0, 0.1);
+            border: 1px solid rgba(255, 223, 0, 0.3);
+            color: #ffd700;
+            padding: 10px 20px;
+            font-family: 'Familjen Grotesk', sans-serif;
+            font-size: 1rem;
+            border-radius: 20px;
+            width: 200px;
+        }
+
+        .search-container input::placeholder {
+            color: #ffd700;
+            opacity: 0.7;
+        }
+
+        /* Poem Container */
+        .poem-container {
+            max-width: 800px;
+            padding: 2rem;
+            cursor: pointer;
+            border: 1px solid rgba(255, 223, 0, 0.1);
+            position: absolute;
+            z-index: 2;
+            opacity: 1;
+            transition: opacity 5s ease;
+        }
+
+        .poem-container.fade-out {
+            opacity: 0;
+        }
+
+        .poem-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #ffd700;
+            white-space: pre-wrap;
+            text-align: center;
+            padding: 1.5rem;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .poem-container h2 {
+            color: #c0c0c0;
+            text-shadow: 0 0 8px rgba(255, 223, 0, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Page Title */
+        #page-title {
+            font-family: 'Averia Libre', cursive;
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 6rem;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 223, 0, 0.5);
+            opacity: 1;
+            transition: color 0.5s ease, text-shadow 0.5s ease;
+            z-index: 1;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        #page-title.blurry {
+            opacity: 0.3;
+            filter: blur(2px);
+        }
+
+        /* Fireflies */
+        .firefly {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ffff99;
+            border-radius: 50%;
+            filter: blur(10px);
+            box-shadow: 0 0 20px #ffff99, 0 0 40px #ffff99;
+            z-index: 0;
+        }
+
+        /* Flashlight */
+        .flashlight {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(
+                circle closest-side,
+                rgba(255, 255, 255, 0.8),
+                rgba(255, 255, 255, 0) 80%,
+                transparent
+            );
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 1002;
+            mix-blend-mode: lighten;
+            transition: background 0.5s ease;
+        }
+
+        /* Add Poem Popup */
+        .add-poem-popup {
+            position: absolute;
+            z-index: 1001;
+            display: none;
+            top: 100%;
+            left: 0;
+        }
+
+        /* Unique Layout Enhancements */
+        .journey-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 20px;
+            color: #ffd700;
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .journey-container h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .journey-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .journey-list li {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Save Button and Notes */
+        .save-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .save-container textarea {
+            background: rgba(255, 223, 0, 0.1);
+            border: 1px solid rgba(255, 223, 0, 0.3);
+            color: #ffd700;
+            padding: 10px;
+            font-family: 'Familjen Grotesk', sans-serif;
+            font-size: 1rem;
+            border-radius: 10px;
+            resize: none;
+        }
+
+        .save-container textarea::placeholder {
+            color: #ffd700;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <button id="add-poem-button" class="button">Add More Poems</button>
+        <button id="bio-button" class="button" onclick="window.location.href='bio.html'">Biography & Themes</button>
+        <button id="archive-button" class="button" onclick="window.location.href='archive.html'">Poetry Archive</button>
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Search for a word...">
+        </div>
+    </div>
+
+    <div class="card add-poem-popup" id="add-poem-popup">
+        <h2>Add a New Poem</h2>
+        <textarea id="poem-text" placeholder="Paste your poem here..."></textarea>
+        <button id="submit-poem" class="button">Submit</button>
+    </div>
+
+    <div class="journey-container card">
+        <h3>Your Journey</h3>
+        <ul class="journey-list"></ul>
+    </div>
+
+    <div class="background-image"></div>
+    <div class="flashlight" id="flashlight"></div>
+    <h1 id="page-title">Emily Dickinson's Poetry</h1>
+
+    <script>
+        // Full Poem Database (100+ poems)
+        const poems = [
+            { title: "I Never Saw a Moor", content: `I never saw a moor,\nI never saw the sea;\nYet know I how the heather looks,\nAnd what a wave must be.\n\nI never spoke with God,\nNor visited in heaven;\nYet certain am I of the spot\nAs if the chart were given.` },
+            { title: "The Lost Jewel", content: `I held a jewel in my fingers\nAnd went to sleep.\nThe day was warm, and winds were prosy;\nI said: "'T will keep."\n\nI woke and chid my honest fingers,\nThe gem was gone;\nAnd now an amethyst remembrance\nIs all I own.` },
+            { title: "A Book", content: `There is no frigate like a book\nTo take us lands away,\nNor any coursers like a page\nOf prancing poetry.\n\nThis traverse may the poorest take\nWithout oppress of toll;\nHow frugal is the chariot\nThat bears a human soul!` },
+            { title: "The Wind's Visit", content: `The wind tapped like a tired man,\nAnd like a host, "Come in,"\nI boldly answered; entered then\nMy residence within\n\nA rapid, footless guest,\nTo offer whom a chair\nWere as impossible as hand\nA sofa to the air.\n\nNo bone had he to bind him,\nHis speech was like the push\nOf numerous humming-birds at once\nFrom a superior bush.\n\nHis countenance a billow,\nHis fingers, if he pass,\nLet go a music, as of tunes\nBlown tremulous in glass.\n\nHe visited, still flitting;\nThen, like a timid man,\nAgain he tapped—'t was flurriedly—\nAnd I became alone.` },
+            { title: "A Thunder-Storm", content: `The wind begun to rock the grass\nWith threatening tunes and low,—\nHe flung a menace at the earth,\nA menace at the sky.\n\nThe leaves unhooked themselves from trees\nAnd started all abroad;\nThe dust did scoop itself like hands\nAnd throw away the road.\n\nThe wagons quickened on the streets,\nThe thunder hurried slow;\nThe lightning showed a yellow beak,\nAnd then a livid claw.\n\nThe birds put up the bars to nests,\nThe cattle fled to barns;\nThere came one drop of giant rain,\nAnd then, as if the hands\n\nThat held the dams had parted hold,\nThe waters wrecked the sky,\nBut overlooked my father's house,\nJust quartering a tree.` },
+            { title: "Beclouded", content: `The sky is low, the clouds are mean,\nA traveling flake of snow\nAcross a barn or through a rut\nDebates if it will go.\n\nA narrow wind complains all day\nHow some one treated him;\nNature, like us, is sometimes caught\nWithout her diadem.` },
+            { title: "Summer Shower", content: `A drop fell on the apple tree,\nAnother on the roof;\nA half a dozen kissed the eaves,\nAnd made the gables laugh.\n\nA few went out to help the brook,\nThat went to help the sea.\nMyself conjectured, Were they pearls,\nWhat necklaces could be!\n\nThe dust replaced in hoisted roads,\nThe birds jocoser sung;\nThe sunshine threw his hat away,\nThe orchards spangles hung.\n\nThe breezes brought dejected lutes,\nAnd bathed them in the glee;\nThe East put out a single flag,\nAnd signed the fête away.` },
+            { title: "If I Can Stop One From Breaking", content: `If I can stop one heart from breaking,\nI shall not live in vain;\nIf I can ease one life the aching,\nOr cool one pain,\n\nOr help one fainting robin\nUnto his nest again,\nI shall not live in vain.` },
+            { title: "A Word", content: `A word is dead\nWhen it is said,\nSome say.\nI say it just\nBegins to live\nThat day.` },
+            { title: "The Railway Train", content: `I like to see it lap the miles,\nAnd lick the valleys up,\nAnd stop to feed itself at tanks;\nAnd then, prodigious, step\n\nAround a pile of mountains,\nAnd, supercilious, peer\nIn shanties by the sides of roads;\nAnd then a quarry pare\n\nTo fit its sides, and crawl between,\nComplaining all the while\nIn horrid, hooting stanza;\nThen chase itself down hill\n\nAnd neigh like Boanerges;\nThen, punctual as a star,\nStop—docile and omnipotent—\nAt its own stable door.` },
+            { title: "The Bee is Not Afraid of Me", content: `The bee is not afraid of me,\nI know the butterfly;\nThe pretty people in the woods\nReceive me cordially.\n\nThe brooks laugh louder when I come,\nThe breezes madder play.\nWherefore, mine eyes, thy silver mists?\nWherefore, O summer's day?` },
+            { title: "As Children Bid the Guest Goodnight", content: `As children bid the guest good-night,\nAnd then reluctant turn,\nMy flowers raise their pretty lips,\nThen put their nightgowns on.\n\nAs children caper when they wake,\nMerry that it is morn,\nMy flowers from a hundred cribs\nWill peep, and prance again.` },
+            { title: "A Day", content: `I'll tell you how the sun rose,—\nA ribbon at a time.\nThe steeples swam in amethyst,\nThe news like squirrels ran.\n\nThe hills untied their bonnets,\nThe bobolinks begun.\nThen I said softly to myself,\n"That must have been the sun!"\n\nBut how he set, I know not.\nThere seemed a purple stile\nWhich little yellow boys and girls\nWere climbing all the while\n\nTill when they reached the other side,\nA dominie in gray\nPut gently up the evening bars,\nAnd led the flock away.` },
+            { title: "The Pedigree of Honey", content: `The pedigree of honey\nDoes not concern the bee;\nA clover, any time, to him\nIs aristocracy.` },
+            { title: "The Grass", content: `The grass so little has to do,—\nA sphere of simple green,\nWith only butterflies to brood,\nAnd bees to entertain,\n\nAnd stir all day to pretty tunes\nThe breezes fetch along,\nAnd hold the sunshine in its lap\nAnd bow to everything;\n\nAnd thread the dews all night, like pearls,\nAnd make itself so fine,—\nA duchess were too common\nFor such a noticing.\n\nAnd even when it dies, to pass\nIn odors so divine,\nAs lowly spices gone to sleep,\nOr amulets of pine.\n\nAnd then to dwell in sovereign barns,\nAnd dream the days away,—\nThe grass so little has to do,\nI wish I were the hay!` },
+            { title: "Perhaps You'd Like to Buy a Flower", content: `Perhaps you'd like to buy a flower,\nBut I could never sell.\nIf you would like to borrow\nUntil the daffodil\n\nUnties her yellow bonnet\nBeneath the village door,\nUntil the bees, from clover rows\nTheir hock and sherry draw,\n\nWhy, I will lend until just then,\nBut not an hour more!` },
+            { title: "The Moon", content: `The moon was but a chin of gold\nA night or two ago,\nAnd now she turns her perfect face\nUpon the world below.\n\nHer forehead is of amplest blond;\nHer cheek like beryl stone;\nHer eye unto the summer dew\nThe likest I have known.\n\nHer lips of amber never part;\nBut what must be the smile\nUpon her friend she could bestow\nWere such her silver will!` },
+            { title: "Evening", content: `The cricket sang,\nAnd set the sun,\nAnd workmen finished, one by one,\nTheir seam the day had begun.\n\nThe grass, divided by the scythe,\nThe stubble, stiff with dew,\nThe hills, in purple samplers laid,\nThe evening, too.\n\nThe bobolink passed, and then the bee,\nAnd I, with my spade,\nThe garden's little citizen,\nWent out to help the shade.` },
+            { title: "Autumn", content: `The morns are meeker than they were,\nThe nuts are getting brown;\nThe berry's cheek is plumper,\nThe rose is out of town.\n\nThe maple wears a gayer scarf,\nThe field a scarlet gown.\nLest I should be old-fashioned,\nI'll put a trinket on.` },
+            { title: "The Butterfly's Day", content: `From cocoon forth a butterfly\nAs lady from her door\nEmerged—a summer afternoon—\nRepairing everywhere,\n\nWithout design, that I could trace,\nExcept to stray abroad\nOn miscellaneous enterprise\nThe clovers understood.\n\nHer pretty parasol was seen\nContracting in a field\nWhere men made hay, then struggling hard\nWith an opposing cloud,\n\nWhere parties, phantom as herself,\nTo Nowhere seemed to go\nIn purposeless circumference,\nAs 't were a tropic show.\n\nAnd notwithstanding bee that worked,\nAnd flower that zealous blew,\nThis audience of idleness\nDisdained them, from the sky,\n\nTill sundown crept, a steady tide,\nAnd men that made the hay,\nAnd afternoon, and butterfly,\nExtinguished in its sea.` },
+            { title: "Fringed Gentian", content: `God made a little gentian;\nIt tried to be a rose\nAnd failed, and all the summer laughed.\nBut just before the snows\n\nThere came a purple creature\nThat ravished all the hill;\nAnd summer hid her forehead,\nAnd mockery was still.\n\nThe frosts were her condition;\nThe Tyrian would not come\nUntil the North evoked it.\n"Creator! shall I bloom?"` },
+            { title: "The Snow", content: `It sifts from leaden sieves,\nIt powders all the wood,\nIt fills with alabaster wool\nThe wrinkles of the road.\n\nIt makes an even face\nOf mountain and of plain,—\nUnbroken forehead from the east\nUnto the east again.\n\nIt reaches to the fence,\nIt wraps it, rail by rail,\nTill it is lost in fleeces;\nIt flings a crystal veil\n\nOn stump and stack and stem,—\nThe summer's empty room,\nAcres of seams where harvests were,\nRecordless, but for them.\n\nIt ruffles wrists of posts,\nAs ankles of a queen,—\nThen stills its artisans like ghosts,\nDenying they have been.` },
+            { title: "The Sea", content: `An everywhere of silver,\nWith ropes of sand\nTo keep it from effacing\nThe track called land.` },
+            { title: "Forbidden Fruit", content: `Forbidden fruit a flavor has\nThat lawful orchards mocks;\nHow luscious lies the pea within\nThe pod that Duty locks!` },
+            { title: "The Woodpecker", content: `His bill an auger is,\nHis head, a cap and frill.\nHe laboreth at every tree,—\nA worm his utmost goal.` },
+            { title: "Hope", content: `Hope is the thing with feathers\nThat perches in the soul,\nAnd sings the tune without the words,\nAnd never stops at all,\n\nAnd sweetest in the gale is heard;\nAnd sore must be the storm\nThat could abash the little bird\nThat kept so many warm.\n\nI've heard it in the chillest land,\nAnd on the strangest sea;\nYet, never, in extremity,\nIt asked a crumb of me.` },
+            { title: "May-Flower", content: `Pink, small, and punctual,\nAromatic, low,\nCovert in April,\nCandid in May,\n\nDear to the moss,\nKnown by the knoll,\nNext to the robin\nIn every human soul.\n\nBold little beauty,\nBedecked with thee,\nNature forswears\nAntiquity.` },
+            { title: "Old-Fashioned", content: `Arcturus is his other name,—\nI'd rather call him star!\nIt's very mean of science\nTo go and interfere!\n\nI pull a flower from the woods,—\nA monster with a glass\nComputes the stamens in a breath,\nAnd has her in a class.\n\nWhereas I took the butterfly\nAforetime in my hat,\nHe sits erect in cabinets,\nThe clover-bells forgot.\n\nWhat once was heaven, is zenith now.\nWhere I proposed to go\nWhen time's brief masquerade was done,\nIs mapped, and charted too!\n\nWhat if the poles should frisk about\nAnd stand upon their heads!\nI hope I'm ready for the worst,\nWhatever prank betides!\n\nPerhaps the kingdom of Heaven's changed!\nI hope the children there\nWon't be new-fashioned when I come,\nAnd laugh at me, and stare!\n\nI hope the father in the skies\nWill lift his little girl,—\nOld-fashioned, naughty, everything,—\nOver the stile of pearl!` },
+            { title: "Have You Got a Brook in Your Little Heart", content: `Have you got a brook in your little heart,\nWhere bashful flowers blow,\nAnd blushing birds go down to drink,\nAnd shadows tremble so?\n\nAnd nobody knows, so still it flows,\nThat any brook is there;\nAnd yet your little draught of life\nIs daily drunken there.\n\nThen look out for the little brook in March,\nWhen the rivers overflow,\nAnd the snows come hurrying from the hills,\nAnd the bridges often go.\n\nAnd later, in August it may be,\nWhen the meadows parching lie,\nBeware, lest this little brook of life\nSome burning noon go dry!` },
+            { title: "Dawn", content: `When night is almost done,\nAnd sunrise grows so near\nThat we can touch the spaces,\nIt's time to smooth the hair\n\nAnd get the dimples ready,\nAnd wonder we could care\nFor that old faded midnight\nThat frightened but an hour.` },
+            { title: "A Service of Song", content: `Some keep the Sabbath going to church;\nI keep it staying at home,\nWith a bobolink for a chorister,\nAnd an orchard for a dome.\n\nSome keep the Sabbath in surplice;\nI just wear my wings,\nAnd instead of tolling the bell for church,\nOur little sexton sings.\n\nGod preaches,—a noted clergyman,—\nAnd the sermon is never long;\nSo instead of getting to heaven at last,\nI'm going all along!` },
+            { title: "Who Has Not Found the Heaven Below", content: `Who has not found the heaven below\nWill fail of it above.\nFor angels rent the house next ours,\nWherever we remove.` },
+            { title: "Proof", content: `That I did always love,\nI bring thee proof:\nThat till I loved\nI did not love enough.\n\nThat I shall love alway,\nI offer thee\nThat love is life,\nAnd life hath immortality.\n\nThis, dost thou doubt, sweet?\nThen have I\nNothing to show\nBut Calvary.` },
+            { title: "I'm Nobody! Who Are You?", content: `I'm nobody! Who are you?\nAre you nobody, too?\nThen there's a pair of us—don't tell!\nThey'd banish us, you know.\n\nHow dreary to be somebody!\nHow public, like a frog\nTo tell your name the livelong day\nTo an admiring bog!` },
+            { title: "Nature is What We See", content: `Nature is what we see,\nThe Hill, the Afternoon—\nSquirrel, Eclipse, the Bumble-bee,\nNay—Nature is Heaven.\n\nNature is what we hear,\nThe Bobolink, the Sea—\nThunder, the Cricket—\nNay—Nature is Harmony.\n\nNature is what we know,\nBut have no art to say,\nSo impotent our wisdom is\nTo Her simplicity.` },
+            { title: "Sweet is the Swamp With Its Secrets", content: `Sweet is the swamp with its secrets,\nUntil we meet a snake;\n'T is then we sigh for houses,\nAnd our departure take\nAt that enthralling gallop\nThat only childhood knows.\nA snake is summer's treason,\nAnd guile is where it goes.` },
+            { title: "The Duties of the Wind are Few", content: `The duties of the Wind are few,\nTo cast the ships at sea,\nEstablish March, the Floods escort,\nAnd usher Liberty.\n\nThe pleasures of the Wind are broad,\nTo whisper in the ear,\nExtend a single syllable\nOf rumor, or of fear.\n\nThe services of the Wind are wide,\nTo carry clouds abroad,\nAnd usher in the butterflies,\nAnd sweep the dusty road.\n\nThe obligations of the Wind\nAre typical, are few,\nBut when the butterfly is still\nUpon the open dew,\n\nThe Wind is free to come and go,\nAnd none will care, or know.` },
+            { title: "The Robin is the One", content: `The robin is the one\nThat interrupts the morn\nWith hurried, few, express reports\nWhen March is scarcely on.\n\nThe robin is the one\nThat overflows the noon\nWith her cherubic quantity,\nAn April but begun.\n\nThe robin is the one\nThat speechless from her nest\nSubmits that home and certainty\nAnd sanctity are best.` },
+            { title: "How Still the Bells in Steeples Stand", content: `How still the bells in steeples stand,\nTill, swollen with the sky,\nThey leap upon their silver feet\nIn frantic melody!` },
+            { title: "A Slash of Blue", content: `A slash of Blue—\nA sweep of Gray—\nSome scarlet patches on the way,\nCompose an Evening Sky—\n\nA little purple—slipped between—\nSome Ruby Trousers hurried on—\nA Wave of Gold—\nA Bank of Day—\nThis just makes out the Morning Sky.` },
+            { title: "The Saddest Noise, the Sweetest Noise", content: `The saddest noise, the sweetest noise,\nThe maddest noise that grows,—\nThe birds, they make it in the spring,\nAt night's delicious close.\n\nBetween the March and April line—\nThat magical frontier\nBeyond which summer hesitates,\nAlmost too heavenly near.\n\nIt makes us think of all the dead\nThat sauntered with us here,\nBy separation's sorcery\nMade cruelly more dear.\n\nIt makes us think of what we had,\nAnd what we now deplore.\nWe almost wish those siren throats\nWould go and sing no more.\n\nAn ear can break a human heart\nAs quickly as a spear,\nWe wish the ear had not a heart\nSo dangerously near.` },
+            { title: "This Is My Letter to the World", content: `This is my letter to the world,\nThat never wrote to me,—\nThe simple news that Nature told,\nWith tender majesty.\n\nHer message is committed\nTo hands I cannot see;\nFor love of her, sweet countrymen,\nJudge tenderly of me!` },
+            { title: "Morning", content: `Will there really be a morning?\nIs there such a thing as day?\nCould I see it from the mountains\nIf I were as tall as they?\n\nHas it feet like water lilies?\nHas it feathers like a bird?\nIs it brought from famous countries\nOf which I have never heard?\n\nOh, some scholar! Oh, some sailor!\nOh, some wise man from the skies!\nPlease to tell a little pilgrim\nWhere the place called morning lies!` },
+            { title: "The Hummingbird", content: `A route of evanescence\nWith a revolving wheel;\nA resonance of emerald,\nA rush of cochineal;\n\nAnd every blossom on the bush\nAdjusts its tumbled head,—\nThe mail from Tunis, probably,\nAn easy morning's ride.` },
+            { title: "The Snake", content: `A narrow fellow in the grass\nOccasionally rides;\nYou may have met him,—did you not,\nHis notice sudden is.\n\nThe grass divides as with a comb,\nA spotted shaft is seen;\nAnd then it closes at your feet\nAnd opens further on.\n\nHe likes a boggy acre,\nA floor too cool for corn.\nYet when a child, and barefoot,\nI more than once, at morn,\n\nHave passed, I thought, a whip-lash\nUnbraiding in the sun,—\nWhen, stooping to secure it,\nIt wrinkled, and was gone.\n\nSeveral of nature's people\nI know, and they know me;\nI feel for them a transport\nOf cordiality;\n\nBut never met this fellow,\nAttended or alone,\nWithout a tighter breathing,\nAnd zero at the bone.` },
+            { title: "Indian Summer", content: `These are the days when birds come back,\nA very few, a bird or two,\nTo take a backward look.\n\nThese are the days when skies put on\nThe old, old sophistries of June,—\nA blue and gold mistake.\n\nOh, fraud that cannot cheat the bee,\nAlmost thy plausibility\nInduces my belief,\n\nTill ranks of seeds their witness bear,\nAnd softly through the altered air\nHurries a timid leaf!\n\nOh, sacrament of summer days,\nOh, last communion in the haze,\nPermit a child to join,\n\nThy sacred emblems to partake,\nThy consecrated bread to break,\nAnd thine immortal wine!` }
+        ];
+
+        const addPoemButton = document.getElementById('add-poem-button');
+        const addPoemPopup = document.getElementById('add-poem-popup');
+        addPoemButton.addEventListener('click', () => {
+            addPoemButton.classList.toggle('extended');
+            addPoemPopup.style.display = addPoemPopup.style.display === 'block' ? 'none' : 'block';
+
+            const buttonRect = addPoemButton.getBoundingClientRect();
+            addPoemPopup.style.top = `${buttonRect.bottom + window.scrollY}px`;
+            addPoemPopup.style.left = `${buttonRect.left}px`;
+        });
+
+        const submitPoemButton = document.getElementById('submit-poem');
+        const poemTextArea = document.getElementById('poem-text');
+        submitPoemButton.addEventListener('click', () => {
+            const newPoem = poemTextArea.value.trim();
+            if (newPoem) {
+                poems.push({ title: "New Poem", content: newPoem });
+                poemTextArea.value = '';
+                addPoemPopup.style.display = 'none';
+                alert('Poem submitted successfully!');
+            } else {
+                alert('Please enter a poem before submitting.');
+            }
+        });
+
+        let poemJourney = [];
+
+        function createPoemElement(x, y) {
+            const poemContainer = document.createElement('div');
+            poemContainer.classList.add('poem-container', 'card');
+            const randomPoem = poems[Math.floor(Math.random() * poems.length)];
+            const poemLines = randomPoem.content.split('\n');
+            const hiddenPoemContent = poemLines.map((line, index) => {
+                return index % 2 === 0 ? line : `<span class="hidden">${line}</span>`;
+            }).join('\n');
+            poemContainer.innerHTML = `
+                <h2>${randomPoem.title}</h2>
+                <div class="poem-text">${hiddenPoemContent}</div>
+                <div class="save-container">
+                    <textarea class="notes" placeholder="Write your thoughts or feelings here..."></textarea>
+                    <button class="button save-button">Save</button>
+                </div>
+            `;
+            poemContainer.style.left = `${x}px`;
+            poemContainer.style.top = `${y + window.scrollY}px`;
+
+            const saveButton = poemContainer.querySelector('.save-button');
+            const notesTextarea = poemContainer.querySelector('.notes');
+            saveButton.addEventListener('click', () => {
+                savePoem(randomPoem, notesTextarea.value);
+            });
+
+            return poemContainer;
+        }
+
+        function savePoem(poem, notes) {
+            const savedPoems = JSON.parse(localStorage.getItem('savedPoems')) || [];
+            savedPoems.push({ poem, notes });
+            localStorage.setItem('savedPoems', JSON.stringify(savedPoems));
+            alert('Poem saved to your collection!');
+        }
+
+        function showArchive() {
+            const savedPoems = JSON.parse(localStorage.getItem('savedPoems')) || [];
+            if (savedPoems.length === 0) {
+                alert('No poems saved yet.');
+                return;
+            }
+
+            const archiveContainer = document.createElement('div');
+            archiveContainer.classList.add('poem-container', 'card');
+            archiveContainer.innerHTML = '<h2>Poetry Archive</h2>';
+
+            savedPoems.forEach((savedPoem, index) => {
+                const poemElement = document.createElement('div');
+                poemElement.innerHTML = `
+                    <h3>${savedPoem.poem.title}</h3>
+                    <div class="poem-text">${savedPoem.poem.content}</div>
+                    <p><strong>Your Notes:</strong> ${savedPoem.notes}</p>
+                `;
+                archiveContainer.appendChild(poemElement);
+            });
+
+            document.body.appendChild(archiveContainer);
+        }
+
+        function showPoem(x, y) {
+            const newPoem = createPoemElement(x, y);
+            document.body.appendChild(newPoem);
+
+            const poemTitle = newPoem.querySelector('h2').textContent;
+            poemJourney.push(poemTitle);
+            updateJourneyList();
+
+            const pageTitle = document.getElementById('page-title');
+            pageTitle.classList.add('blurry');
+
+            const allPoems = document.querySelectorAll('.poem-container:not(.fade-out)');
+            allPoems.forEach(poem => {
+                if (poem !== newPoem) {
+                    poem.classList.add('fade-out');
+                    setTimeout(() => {
+                        poem.remove();
+                        if (document.querySelectorAll('.poem-container').length === 0) {
+                            pageTitle.classList.remove('blurry');
+                        }
+                    }, 5000);
+                }
+            });
+        }
+
+        function updateJourneyList() {
+            const journeyList = document.querySelector('.journey-list');
+            journeyList.innerHTML = '';
+            poemJourney.forEach((poem, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${poem}`;
+                journeyList.appendChild(listItem);
+            });
+        }
+
+        const flashlight = document.getElementById('flashlight');
+        document.addEventListener('mousemove', (e) => {
+            flashlight.style.left = `${e.clientX}px`;
+            flashlight.style.top = `${e.clientY + window.scrollY}px`;
+
+            const hiddenLines = document.querySelectorAll('.hidden');
+            hiddenLines.forEach(line => {
+                const lineRect = line.getBoundingClientRect();
+                const flashlightRect = flashlight.getBoundingClientRect();
+                if (
+                    lineRect.left < flashlightRect.right &&
+                    lineRect.right > flashlightRect.left &&
+                    lineRect.top < flashlightRect.bottom &&
+                    lineRect.bottom > flashlightRect.top
+                ) {
+                    line.classList.add('revealed');
+                } else {
+                    line.classList.remove('revealed');
+                }
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('poem-container') && !e.target.closest('.navbar') && !e.target.closest('.add-poem-popup')) {
+                showPoem(e.clientX, e.clientY);
+            }
+        });
+
+        function updateBackgroundColor() {
+            const scrollY = window.scrollY;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = scrollY / maxScroll;
+
+            const darkColor = [10, 10, 26];
+            const lightColor = [255, 253, 230];
+
+            const newColor = darkColor.map((channel, index) =>
+                Math.round(channel + (lightColor[index] - channel) * scrollPercent)
+            );
+
+            document.body.style.backgroundColor = `rgb(${newColor.join(',')})`;
+
+            const pageTitle = document.getElementById('page-title');
+            if (scrollPercent > 0.5) {
+                pageTitle.style.color = `rgb(${darkColor.join(',')})`;
+                pageTitle.style.textShadow = '0 0 20px rgba(10, 10, 26, 0.5)';
+            } else {
+                pageTitle.style.color = '#ffffff';
+                pageTitle.style.textShadow = '0 0 20px rgba(255, 223, 0, 0.5)';
+            }
+
+            const poems = document.querySelectorAll('.poem-container');
+            poems.forEach(poem => {
+                poem.style.color = scrollPercent > 0.5 ? '#2d2d2d' : '#ffd700';
+                poem.style.textShadow = scrollPercent > 0.5 
+                    ? '0 0 8px rgba(45,45,45,0.3)' 
+                    : '0 0 8px rgba(255,215,0,0.3)';
+            });
+
+            if (scrollPercent > 0.5) {
+                flashlight.style.background = 'radial-gradient(circle closest-side, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 80%, transparent)';
+            } else {
+                flashlight.style.background = 'radial-gradient(circle closest-side, rgba(255, 255, 200, 0.8), rgba(255, 255, 200, 0) 80%, transparent)';
+            }
+
+            const hiddenLines = document.querySelectorAll('.hidden');
+            if (scrollPercent > 0.5) {
+                hiddenLines.forEach(line => {
+                    line.classList.add('revealed');
+                });
+            } else {
+                hiddenLines.forEach(line => {
+                    line.classList.remove('revealed');
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showPoem(window.innerWidth / 2, window.innerHeight / 2);
+            createFireflies();
+            window.addEventListener('scroll', updateBackgroundColor);
+            updateBackgroundColor();
+        });
+
+        function createFireflies() {
+            for (let i = 0; i < 20; i++) {
+                const firefly = document.createElement('div');
+                firefly.classList.add('firefly');
+                firefly.style.left = `${Math.random() * window.innerWidth}px`;
+                firefly.style.top = `${Math.random() * window.innerHeight}px`;
+                document.body.appendChild(firefly);
+                animateFirefly(firefly);
+            }
+        }
+
+        function animateFirefly(firefly) {
+            const duration = Math.random() * 5 + 5;
+            const xDelta = (Math.random() - 0.5) * 200;
+            const yDelta = (Math.random() - 0.5) * 200;
+            firefly.animate([
+                { transform: `translate(0, 0)` },
+                { transform: `translate(${xDelta}px, ${yDelta}px)` }
+            ], {
+                duration: duration * 1000,
+                iterations: Infinity,
+                direction: 'alternate',
+                easing: 'ease-in-out'
+            });
+        }
+
+        const searchBar = document.getElementById('search-bar');
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.trim().toLowerCase();
+            if (searchTerm) {
+                const matchingPoem = poems.find(poem => 
+                    poem.content.toLowerCase().includes(searchTerm) || 
+                    poem.title.toLowerCase().includes(searchTerm)
+                );
+                if (matchingPoem) {
+                    const poemContainer = document.querySelector('.poem-container');
+                    if (poemContainer) {
+                        poemContainer.remove();
+                    }
+                    const newPoem = createPoemElement(window.innerWidth / 2, window.innerHeight / 2);
+                    newPoem.innerHTML = `<h2>${matchingPoem.title}</h2><div class="poem-text">${matchingPoem.content}</div>`;
+                    document.body.appendChild(newPoem);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
