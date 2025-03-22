@@ -1,5 +1,5 @@
-# emily-dickinsons-peotry
-An interactive website featuring Emily Dickinson's poems. Click anywhere to reveal random poems, with a firefly-themed dark blue background and a flashlight cursor. 
+title: emily-dickinsons-peotry
+description: An interactive website featuring Emily Dickinson's poems. Click anywhere to reveal random poems, with a firefly-themed dark blue background and a flashlight cursor. 
 
 ## Features
 
@@ -8,4 +8,4 @@ An interactive website featuring Emily Dickinson's poems. Click anywhere to reve
 - **Flashlight Cursor**: A flashlight effect on the cursor...
 
 ## Live Demo
-[View the live demo here](https://ruberduckeyy.github.io/Emily-dickinsons-pedry)
+[View the live demo here](https://ruberduckeyy.github.io/Emily-dickinsons-poetry)
